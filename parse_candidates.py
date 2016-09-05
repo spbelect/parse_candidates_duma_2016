@@ -1,9 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import json
 import sys
 import traceback
 from os.path import exists
 
-from pandas import DataFrame
+from pandas import DataFrame, read_csv, concat
 from bs4 import BeautifulSoup
 from requests import get
 
@@ -53,3 +56,11 @@ for region in json.load(open('regions.json')):
 
     with open('candidates-%(id)s %(name)s.csv' % region, 'w+') as filee:
         filee.write(dataframe.set_index('ord').to_csv())
+
+
+def get_all():
+    for region in json.load(open('regions.json')):
+        yield read_csv('candidates-%(id)s %(name)s.csv' % region, index_col='ord')
+
+with open('candidates-all.csv', 'w+') as filee:
+    filee.write(concat(list(get_all())).to_csv())
